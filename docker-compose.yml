@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lightkeeper_db
+    volumes:
+      - mongo_data:/data/db
+
+  app:
+    build: .
+    container_name: lightkeeper
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      DATABASE_NAME: lightkeeper_db
+      SLACK_DEBUG_WEBHOOK: ENTER_WEBHOOK_URL_HERE
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: python run.py
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: dashboard
+    depends_on:
+      - app
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://app:8000
+
+volumes:
+  mongo_data:
