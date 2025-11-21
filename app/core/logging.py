@@ -1,5 +1,8 @@
 import logging.config
 from app.core.config import settings
+import os
+
+os.makedirs("logs", exist_ok=True)
 
 LOGGING_CONFIG = {
     "version": 1,
